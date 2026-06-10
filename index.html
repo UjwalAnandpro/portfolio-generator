@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PortfolioAI - AI-Powered Developer Portfolio Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen active">
+        <div class="loading-content">
+            <div class="loader"></div>
+            <p>Initializing PortfolioAI...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-robot"></i>
+                <span>PortfolioAI</span>
+            </div>
+            <div class="nav-controls">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="https://github.com" target="_blank" class="nav-link">
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Left Sidebar - Form -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Create Your Portfolio</h2>
+                <p>Fill in your details and watch the magic happen</p>
+            </div>
+
+            <form id="portfolioForm" class="form-container">
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i> Basic Information
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input 
+                            type="text" 
+                            id="fullName" 
+                            placeholder="John Doe"
+                            value="Sarah Anderson"
+                        >
+                        <span class="char-count"><span class="current">0</span>/50</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">Professional Title</label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            placeholder="Full Stack Developer"
+                            value="Full Stack Developer & AI Enthusiast"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profileImage">Profile Image URL</label>
+                        <input 
+                            type="url" 
+                            id="profileImage" 
+                            placeholder="https://example.com/photo.jpg"
+                            value="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop"
+                        >
+                    </div>
+                </div>
+
+                <!-- About -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-pen"></i> About Me
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="aboutMe">Your Story</label>
+                        <textarea 
+                            id="aboutMe" 
+                            placeholder="Tell us about yourself..."
+                            rows="4"
+                        >Passionate full-stack developer with 6+ years of experience building scalable web applications. I specialize in React, Node.js, and cloud technologies. When I'm not coding, I'm exploring AI and machine learning possibilities.</textarea>
+                        <span class="char-count"><span class="current">0</span>/500</span>
+                    </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-code"></i> Skills
+                    </h3>
+
+                    <div class="skills-input-container">
+                        <div class="form-group">
+                            <label for="skillInput">Add Skill</label>
+                            <div class="skill-input-group">
+                                <input 
+                                    type="text" 
+                                    id="skillInput" 
+                                    placeholder="e.g., React, Node.js, Python"
+                                >
+                                <button type="button" class="btn-add-skill">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="skillsList" class="skills-list">
+                            <span class="skill-tag">React <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">Node.js <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">JavaScript <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">TypeScript <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">Python <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">PostgreSQL <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">AWS <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                            <span class="skill-tag">Docker <button type="button" class="remove-skill"><i class="fas fa-times"></i></button></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-project-diagram"></i> Projects
+                    </h3>
+
+                    <div id="projectsList" class="projects-list">
+                        <!-- Projects will be added here -->
+                    </div>
+
+                    <button type="button" class="btn-secondary btn-add-project">
+                        <i class="fas fa-plus"></i> Add Project
+                    </button>
+                </div>
+
+                <!-- Social Links -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-link"></i> Social Links
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            placeholder="you@example.com"
+                            value="sarah.anderson@example.com"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="github">GitHub URL</label>
+                        <input 
+                            type="url" 
+                            id="github" 
+                            placeholder="https://github.com/yourname"
+                            value="https://github.com/sarahanders"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="linkedin">LinkedIn URL</label>
+                        <input 
+                            type="url" 
+                            id="linkedin" 
+                            placeholder="https://linkedin.com/in/yourname"
+                            value="https://linkedin.com/in/sarahanders"
+                        >
+                    </div>
+                </div>
+
+                <!-- Template Selection -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-palette"></i> Template
+                    </h3>
+
+                    <div class="template-selector">
+                        <label class="template-option">
+                            <input type="radio" name="template" value="modern" checked>
+                            <span class="template-name">Modern</span>
+                        </label>
+                        <label class="template-option">
+                            <input type="radio" name="template" value="minimalist">
+                            <span class="template-name">Minimalist</span>
+                        </label>
+                        <label class="template-option">
+                            <input type="radio" name="template" value="startup">
+                            <span class="template-name">Startup</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary btn-generate">
+                        <i class="fas fa-magic"></i> Generate Portfolio
+                    </button>
+                </div>
+            </form>
+        </aside>
+
+        <!-- Right Section - Preview -->
+        <main class="main-content">
+            <div class="preview-container">
+                <!-- Preview Tabs -->
+                <div class="preview-tabs">
+                    <button class="tab-btn active" data-tab="preview">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <button class="tab-btn" data-tab="code">
+                        <i class="fas fa-code"></i> Code
+                    </button>
+                    <button class="tab-btn" data-tab="download">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+
+                <!-- Preview Tab -->
+                <div id="previewTab" class="tab-content active">
+                    <div id="portfolioPreview" class="portfolio-preview">
+                        <!-- Portfolio will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Code Tab -->
+                <div id="codeTab" class="tab-content">
+                    <div class="code-viewer">
+                        <div class="code-header">
+                            <span>Generated HTML</span>
+                            <button id="copyCodeBtn" class="btn-icon" title="Copy Code">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <pre><code id="generatedCode"></code></pre>
+                    </div>
+                </div>
+
+                <!-- Download Tab -->
+                <div id="downloadTab" class="tab-content">
+                    <div class="download-section">
+                        <div class="download-card">
+                            <i class="fas fa-file-html"></i>
+                            <h3>Download as HTML</h3>
+                            <p>Get your complete portfolio as a standalone HTML file</p>
+                            <button id="downloadBtn" class="btn-primary">
+                                <i class="fas fa-download"></i> Download Portfolio
+                            </button>
+                        </div>
+                        <div class="download-card">
+                            <i class="fas fa-clipboard"></i>
+                            <h3>Copy HTML Code</h3>
+                            <p>Copy the entire portfolio code to your clipboard</p>
+                            <button id="copyHtmlBtn" class="btn-secondary">
+                                <i class="fas fa-copy"></i> Copy Code
+                            </button>
+                        </div>
+                        <div class="download-card">
+                            <i class="fas fa-share-alt"></i>
+                            <h3>Share Portfolio</h3>
+                            <p>Generate a shareable link to your portfolio (coming soon)</p>
+                            <button class="btn-secondary" disabled>
+                                <i class="fas fa-spinner"></i> Coming Soon
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Project Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Project</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="projectForm" class="modal-body">
+                <div class="form-group">
+                    <label for="projectTitle">Project Title</label>
+                    <input type="text" id="projectTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="projectDescription">Description</label>
+                    <textarea id="projectDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="projectTech">Technologies (comma separated)</label>
+                    <input type="text" id="projectTech" placeholder="React, Node.js, MongoDB">
+                </div>
+                <div class="form-group">
+                    <label for="projectLink">Project Link (Optional)</label>
+                    <input type="url" id="projectLink">
+                </div>
+                <div class="form-group">
+                    <label for="projectImage">Project Image URL</label>
+                    <input type="url" id="projectImage" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelProjectBtn">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
