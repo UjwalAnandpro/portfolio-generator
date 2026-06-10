@@ -41,6 +41,7 @@ const state = {
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
+    loadPortfolioFromURL();
     initializeForm();
     initializeEventListeners();
     generatePortfolio();
@@ -82,6 +83,192 @@ document.getElementById('themeToggle').addEventListener('click', () => {
     setTheme(nextTheme);
     showToast('Theme changed', 'success');
 });
+
+// ==================== SHAREABLE LINK FUNCTIONS ====================
+function generateShareableLink() {
+    try {
+        // Encode portfolio data to Base64
+        const portfolioData = JSON.stringify(state.portfolio);
+        const encodedData = btoa(encodeURIComponent(portfolioData));
+        
+        // Generate URL with encoded data
+        const baseUrl = window.location.origin + window.location.pathname;
+        const shareUrl = `${baseUrl}?portfolio=${encodedData}`;
+        
+        return shareUrl;
+    } catch (error) {
+        console.error('Error generating shareable link:', error);
+        showToast('Error generating link', 'error');
+        return null;
+    }
+}
+
+function loadPortfolioFromURL() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const portfolioParam = urlParams.get('portfolio');
+        
+        if (portfolioParam) {
+            // Decode the portfolio data
+            const decodedData = decodeURIComponent(atob(portfolioParam));
+            const portfolioData = JSON.parse(decodedData);
+            
+            // Merge with existing state
+            state.portfolio = { ...state.portfolio, ...portfolioData };
+            
+            showToast('Portfolio loaded from link!', 'success');
+            updateFormFromState();
+        }
+    } catch (error) {
+        console.error('Error loading portfolio from URL:', error);
+    }
+}
+
+function updateFormFromState() {
+    const { fullName, title, aboutMe, email, github, linkedin, profileImage, skills, projects, template } = state.portfolio;
+    
+    document.getElementById('fullName').value = fullName || '';
+    document.getElementById('title').value = title || '';
+    document.getElementById('aboutMe').value = aboutMe || '';
+    document.getElementById('email').value = email || '';
+    document.getElementById('github').value = github || '';
+    document.getElementById('linkedin').value = linkedin || '';
+    document.getElementById('profileImage').value = profileImage || '';
+    
+    // Set template
+    document.querySelectorAll('input[name="template"]').forEach(input => {
+        input.checked = input.value === template;
+    });
+    
+    // Render skills and projects
+    renderSkills();
+    renderProjects();
+}
+
+function copyShareableLink() {
+    const shareUrl = generateShareableLink();
+    if (shareUrl) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            showToast('Shareable link copied to clipboard!', 'success');
+        }).catch(() => {
+            showToast('Failed to copy link', 'error');
+        });
+    }
+}
+
+function openShareModal() {
+    const shareUrl = generateShareableLink();
+    if (!shareUrl) return;
+    
+    // Create modal if it doesn't exist
+    let shareModal = document.getElementById('shareModal');
+    if (!shareModal) {
+        const modalHTML = `
+            <div id="shareModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Share Your Portfolio</h2>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body share-modal-body">
+                        <p class="share-description">Share this link to let others view your portfolio:</p>
+                        <div class="share-link-container">
+                            <input type="text" id="shareUrlInput" class="share-url-input" readonly>
+                            <button id="copyShareLinkBtn" class="btn-primary" style="margin-left: 10px;">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div class="share-options">
+                            <p class="share-label">Share via:</p>
+                            <div class="social-share-buttons">
+                                <button id="shareTwitterBtn" class="social-share-btn twitter" title="Share on Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </button>
+                                <button id="shareLinkedinBtn" class="social-share-btn linkedin" title="Share on LinkedIn">
+                                    <i class="fab fa-linkedin"></i>
+                                </button>
+                                <button id="shareEmailBtn" class="social-share-btn email" title="Share via Email">
+                                    <i class="fas fa-envelope"></i>
+                                </button>
+                                <button id="copyQRBtn" class="social-share-btn qr" title="Generate QR Code">
+                                    <i class="fas fa-qrcode"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="qrCodeContainer" style="display:none; text-align: center; margin-top: 20px;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-secondary" id="closeShareModalBtn">Close</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        shareModal = document.getElementById('shareModal');
+        
+        // Set up event listeners for the modal
+        document.querySelector('.modal-close').addEventListener('click', () => {
+            shareModal.classList.remove('active');
+        });
+        document.getElementById('closeShareModalBtn').addEventListener('click', () => {
+            shareModal.classList.remove('active');
+        });
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                shareModal.classList.remove('active');
+            }
+        });
+        
+        // Copy link button
+        document.getElementById('copyShareLinkBtn').addEventListener('click', copyShareableLink);
+        
+        // Social share buttons
+        document.getElementById('shareTwitterBtn').addEventListener('click', () => {
+            const text = `Check out my portfolio created with PortfolioAI!`;
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
+            window.open(twitterUrl, 'twitter-share', 'width=550,height=420');
+        });
+        
+        document.getElementById('shareLinkedinBtn').addEventListener('click', () => {
+            const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`;
+            window.open(linkedinUrl, 'linkedin-share', 'width=550,height=420');
+        });
+        
+        document.getElementById('shareEmailBtn').addEventListener('click', () => {
+            const subject = `Check out my portfolio!`;
+            const body = `I've created my portfolio using PortfolioAI. Take a look: ${shareUrl}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        });
+        
+        document.getElementById('copyQRBtn').addEventListener('click', () => {
+            const qrContainer = document.getElementById('qrCodeContainer');
+            if (qrContainer.style.display === 'none') {
+                generateQRCode(shareUrl, qrContainer);
+                qrContainer.style.display = 'block';
+            } else {
+                qrContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // Update URL input
+    document.getElementById('shareUrlInput').value = shareUrl;
+    
+    // Show modal
+    shareModal.classList.add('active');
+}
+
+function generateQRCode(url, container) {
+    // Using QR Server API (free, no dependencies)
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+    
+    container.innerHTML = `
+        <div style="background: white; padding: 20px; border-radius: 8px; display: inline-block;">
+            <img src="${qrCodeUrl}" alt="QR Code" style="max-width: 200px;">
+            <p style="color: #666; margin-top: 10px; font-size: 12px;">Scan to view portfolio</p>
+        </div>
+    `;
+}
 
 // ==================== FORM INITIALIZATION ====================
 function initializeForm() {
@@ -177,6 +364,9 @@ function initializeEventListeners() {
 
     // Copy HTML button
     document.getElementById('copyHtmlBtn').addEventListener('click', copyHtmlCode);
+
+    // Share button
+    document.getElementById('shareBtn').addEventListener('click', openShareModal);
 
     // Modal
     const projectModal = document.getElementById('projectModal');
